@@ -1,8 +1,7 @@
 # On Building
 
 # lab-terraform-aws-iis
-That lab is for who need a first step to understand about terraform and the integration with aws resources, in that lab we made a high diponibility infrastructure with EC2 + LB + ASG.
-The website display the ip of the server where it runing.
+This lab is for those who need a first step in understanding terraform and integrating with aws features. In this lab we created a high availability infrastructure with EC2 + LB + ASG. The site displays the ip of the server it is running on.
 
 #### Pre-req:
 
@@ -14,11 +13,11 @@ The website display the ip of the server where it runing.
 
 **PS: Set up aws account on your local machine, need the secret_access_key and access_key_id.**
 
-First we need to create a bucket on S3, in that lab i call it lab-terraform-iis-tfstate, you can put whatever name, just remember to change on main.tf.
+First, we need to create a bucket in S3; in this lab, I call lab-terraform-iis-tfstate; you can put any name, remember to change it in main.tf.
 
-Second, on environments/lab.tfvars, have two variables where you need to change, vpc_id and subnets, if you created than, put the ids on respectives variables, if not, put the ids of the default vpc and subnets.
+Second, in environments/lab.tfvars, there are two variables you need to change, vpc_id and subnets; if you created, put the IDs in related variables; otherwise enter the default subnet and vpc IDs.
 
-In another case, i will show how to create a vpc and subnets and reuse on other projects.
+In another project, I will show you how to create vpc and subnets and reuse them in other projects.
 
 Third, clone that project and run the commands:
 
