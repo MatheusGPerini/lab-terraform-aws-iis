@@ -2,7 +2,11 @@ variable "environment" {
   
 }
 
-variable "ami" {
+variable "ami_win" {
+  
+}
+
+variable "ami_linux" {
   
 }
 
@@ -36,6 +40,10 @@ variable "subnets" {
 
 variable "azs" {
   type = "list"
+}
+
+variable "so" {
+  
 }
 
 

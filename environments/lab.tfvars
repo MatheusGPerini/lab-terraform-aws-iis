@@ -2,9 +2,11 @@ environment = "stg"
 
 region = "us-east-1"
 
-ami = "ami-00c96c304f033dfbe"
+ami_win = "ami-00c96c304f033dfbe"
 
-instance_type = "t2.micro"
+ami_linux = "ami-062f7200baf2fa504"
+
+instance_type = "t3.small"
 
 max_size = 1
 
@@ -18,6 +20,7 @@ azs = ["us-east-1c","us-east-1a"]
 
 subnets = ["subnet-9ea404d3","subnet-e59c8d82"]
  
+so = "linux"
   
 
 

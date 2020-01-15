@@ -4,7 +4,7 @@
 
 resource "aws_key_pair" "lab_key" {
   key_name   = "cloudKey"
-  public_key = ""
+  public_key = "${file("PUT THE .pub KEY")}"
 }
 
 
@@ -18,15 +18,15 @@ resource "aws_security_group" "sg_lab" {
   description = "Allow traffic for app application"
 
   ingress {
-    from_port               = 8080
-    to_port                 = 8080
+    from_port               = "${var.so == "windows" ? 8080 : 80 }"
+    to_port                 = "${var.so == "windows" ? 8080 : 80 }"
     protocol                = "tcp"
     cidr_blocks             = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port               = 3389
-    to_port                 = 3389
+    from_port               = "${var.so == "windows" ? 3389 : 22 }"
+    to_port                 = "${var.so == "windows" ? 3389 : 22 }"
     protocol                = "tcp"
     cidr_blocks             = ["0.0.0.0/0"]
   }
@@ -64,28 +64,12 @@ resource "aws_security_group" "sg_elb_lab" {
 ######################
 
 resource "aws_launch_configuration" "lc_lab" {
-  image_id = "${var.ami}"
+  image_id = "${var.so == "windows" ? "${var.ami_win}" : "${var.ami_linux}"}"
   instance_type = "${var.instance_type}"
   name = "lc-lab-${var.environment}-${random_id.server.hex}"
   security_groups = ["${aws_security_group.sg_lab.id}"]
   key_name = "${aws_key_pair.lab_key.key_name}"
-  user_data = 
-  <<-EOT
-        <powershell>
-          cd C:\
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          curl https://github.com/git-for-windows/git/releases/download/v2.25.0.windows.1/Git-2.25.0-64-bit.exe -o git.exe -UseBasicParsing
-          Start-Process -FilePath C:\git.exe -Args '/silent /install' -Verb RunAs -Wait
-          C:\'Program Files'\Git\bin\git.exe clone https://github.com/MatheusGPerini/lab-terraform-aws-iis.git
-          mkdir c:\website\lab
-          cd C:\website\lab
-          Copy-Item -Path "C:\lab-terraform-aws-iis\site\*" -Destination "C:\website\lab\" -Recurse
-          Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
-          Install-WindowsFeature -name Web-Server -IncludeManagementTools
-          New-WebAppPool labsite
-          New-WebSite -Name labsite -Port 8080 -ApplicationPool labsite -PhysicalPath "C:\website\lab"
-        </powershell>
-     EOT
+  user_data = "${var.so == "windows" ? "${file("user_data/win.ps1")}" : "${file("user_data/linux.sh")}" }"
 
   lifecycle {
     create_before_destroy   = true
@@ -115,6 +99,10 @@ resource "aws_autoscaling_group" "asg_lab" {
   health_check_grace_period = 120
   health_check_type         = "ELB"
   load_balancers = ["${aws_elb.elb_lab.name}"]
+
+  lifecycle {
+    create_before_destroy   = true
+  }
 
   force_delete = true
 
@@ -151,7 +139,7 @@ resource "aws_elb" "elb_lab" {
 
   listener = [
     {
-      instance_port      = "8080"
+      instance_port      = "${var.so == "windowns" ? "8080" : "80"}"
       instance_protocol  = "TCP"
       lb_port            = "80"
       lb_protocol        = "TCP"
@@ -160,7 +148,7 @@ resource "aws_elb" "elb_lab" {
 
   health_check = [
     {
-      target              = "HTTP:8080/"
+      target              = "${var.so == "windows" ? "HTTP:8080/" : "HTTP:80/"}"
       interval            = 70
       healthy_threshold   = 2
       unhealthy_threshold = 10
