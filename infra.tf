@@ -4,7 +4,7 @@
 
 resource "aws_key_pair" "lab_key" {
   key_name   = "cloudKey"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYnm1QJfKuO5c0YApqIVFXaX2mFWQwu1D3D6jRa05WU7KnhETOuXRMqb4QkH5S2p7MMplRyjnxbWGrS2l0JntSxyel/Lzv88uryoU/XMmtQyo6Aix8Or3xCdeH3efAq1DqXUlvHpBc6dnE+4ay8sqiZStxJslO/7B4SXRtPoDfg9nG/wJCn9MEsb/uTSFR8gjz2txbWVa4NmVDcqo9zdfYaYdK631Tisb6h31N4p97VV7wvNK3NatKmreKWvlqyGuL87JvnVNj7KtrZ9HyVx3lGgtLZeROm+eA0eXsvT+275HLpJSreo6cgStErRfMAcuLnxM4YX+rOSvkKMov9u8b cetil\\matheus.perini@GOVBR5608"
+  public_key = ""
 }
 
 
