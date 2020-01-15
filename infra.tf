@@ -1,3 +1,13 @@
+##############
+# KEY PAIR
+##############
+
+resource "aws_key_pair" "lab_key" {
+  key_name   = "cloudKey"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYnm1QJfKuO5c0YApqIVFXaX2mFWQwu1D3D6jRa05WU7KnhETOuXRMqb4QkH5S2p7MMplRyjnxbWGrS2l0JntSxyel/Lzv88uryoU/XMmtQyo6Aix8Or3xCdeH3efAq1DqXUlvHpBc6dnE+4ay8sqiZStxJslO/7B4SXRtPoDfg9nG/wJCn9MEsb/uTSFR8gjz2txbWVa4NmVDcqo9zdfYaYdK631Tisb6h31N4p97VV7wvNK3NatKmreKWvlqyGuL87JvnVNj7KtrZ9HyVx3lGgtLZeROm+eA0eXsvT+275HLpJSreo6cgStErRfMAcuLnxM4YX+rOSvkKMov9u8b cetil\\matheus.perini@GOVBR5608"
+}
+
+
 ################
 # SECURITY GROUP
 ################
@@ -8,8 +18,15 @@ resource "aws_security_group" "sg_lab" {
   description = "Allow traffic for app application"
 
   ingress {
-    from_port               = 80
-    to_port                 = 80
+    from_port               = 8080
+    to_port                 = 8080
+    protocol                = "tcp"
+    cidr_blocks             = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port               = 3389
+    to_port                 = 3389
     protocol                = "tcp"
     cidr_blocks             = ["0.0.0.0/0"]
   }
@@ -51,18 +68,22 @@ resource "aws_launch_configuration" "lc_lab" {
   instance_type = "${var.instance_type}"
   name = "lc-lab-${var.environment}-${random_id.server.hex}"
   security_groups = ["${aws_security_group.sg_lab.id}"]
+  key_name = "${aws_key_pair.lab_key.key_name}"
   user_data = 
   <<-EOT
         <powershell>
           cd C:\
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
           curl https://github.com/git-for-windows/git/releases/download/v2.25.0.windows.1/Git-2.25.0-64-bit.exe -o git.exe -UseBasicParsing
-          Start-Process -FilePath C:\git.exe -Args '/silent /install' -Verb RunAs -Wait;
+          Start-Process -FilePath C:\git.exe -Args '/silent /install' -Verb RunAs -Wait
           C:\'Program Files'\Git\bin\git.exe clone https://github.com/MatheusGPerini/lab-terraform-aws-iis.git
           mkdir c:\website\lab
           cd C:\website\lab
           Copy-Item -Path "C:\lab-terraform-aws-iis\site\*" -Destination "C:\website\lab\" -Recurse
+          Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
           Install-WindowsFeature -name Web-Server -IncludeManagementTools
-          New-WebSite -Name LabSite -Port 80 -HostHeader LabSite -PhysicalPath "C:\website\lab"
+          New-WebAppPool labsite
+          New-WebSite -Name labsite -Port 8080 -ApplicationPool labsite -PhysicalPath "C:\website\lab"
         </powershell>
      EOT
 
@@ -130,7 +151,7 @@ resource "aws_elb" "elb_lab" {
 
   listener = [
     {
-      instance_port      = "80"
+      instance_port      = "8080"
       instance_protocol  = "TCP"
       lb_port            = "80"
       lb_protocol        = "TCP"
@@ -139,11 +160,11 @@ resource "aws_elb" "elb_lab" {
 
   health_check = [
     {
-      target              = "HTTP:80/"
-      interval            = 35
+      target              = "HTTP:8080/"
+      interval            = 70
       healthy_threshold   = 2
-      unhealthy_threshold = 5
-      timeout             = 30
+      unhealthy_threshold = 10
+      timeout             = 59
     },
   ]
 
@@ -155,6 +176,11 @@ resource "aws_elb" "elb_lab" {
 
 
 resource "random_id" "server" {
+  keepers = {
+
+    uuid = "${uuid()}"
+
+    }
   byte_length = 8
 }
 

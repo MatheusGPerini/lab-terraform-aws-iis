@@ -1,8 +1,8 @@
 environment = "stg"
 
-region = "sa-east-1"
+region = "us-east-1"
 
-ami = "ami-03d1628df9bba93e9"
+ami = "ami-00c96c304f033dfbe"
 
 instance_type = "t2.micro"
 
@@ -12,11 +12,11 @@ min_size = 1
 
 desired_capacity = 1
 
-vpc_id = "vpc-0213ace9d69df80dd"
+vpc_id = "vpc-c5d0fdbf"
 
-azs = ["sa-east-1c","sa-east-1a"]
+azs = ["us-east-1c","us-east-1a"]
 
-subnets = ["subnet-0729a39a2274826cd","subnet-03217fc7eb2ad805b"]
+subnets = ["subnet-9ea404d3","subnet-e59c8d82"]
  
   
 
