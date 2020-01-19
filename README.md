@@ -11,9 +11,8 @@ This lab is for those who need a first step in understanding terraform and integ
 
 **PS1: Set up aws account on your local machine, need the secret_access_key and access_key_id.**
 
-First, we need to create a bucket in S3; in this lab, I call lab-terraform-iis-apache-tfstate; you can put any name, remember to change it in main.tf.
-
-In infra.tf, generate a .pub key and set the path to "public_key"
+First, we need to create a bucket in S3 and a key; in this lab, I call the bucket lab-terraform-iis-apache-tfstate; you can put any name, remember to change it in main.tf.
+In infra.tf, put the key name at aws_key_pair resource.
 
 Second, in environments/lab.tfvars, there are two variables you need to change, vpc_id and subnets; if you created, put the IDs in related variables; otherwise enter the default subnet and vpc IDs
 In another project, I will show you how to create vpc and subnets and reuse them in other projects.
