@@ -25,3 +25,6 @@ variable "azs" {
 }
 
 variable "so" {}
+
+variable "key_name" {}
+

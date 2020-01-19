@@ -1,4 +1,4 @@
-environment = "stg"
+environment = "lab"
 
 region = "us-east-1"
 
@@ -21,6 +21,8 @@ azs = ["us-east-1c","us-east-1a"]
 subnets = ["subnet-9ea404d3","subnet-e59c8d82"]
  
 so = "linux"
+
+key_name = "cloudKey"
   
 
 

@@ -1,11 +1,3 @@
-##############
-# KEY PAIR
-##############
-
-resource "aws_key_pair" "lab_key" {
-  key_name   = "cloudKey"
-}
-
 ################
 # SECURITY GROUP
 ################
@@ -66,7 +58,7 @@ resource "aws_launch_configuration" "lc_lab" {
   instance_type   = "${var.instance_type}"
   name            = "lc-lab-${var.environment}-${random_id.server.hex}"
   security_groups = ["${aws_security_group.sg_lab.id}"]
-  key_name        = "${aws_key_pair.lab_key.key_name}"
+  key_name        = "${var.key_name}"
   user_data       = "${var.so == "windows" ? "${file("user_data/win.ps1")}" : "${file("user_data/linux.sh")}" }"
 
   lifecycle {
