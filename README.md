@@ -1,5 +1,5 @@
 # lab-terraform-aws-iis-apache
-This lab is for those who need a first step in understanding terraform and integrating with aws features. In this lab we created a high availability infrastructure with EC2 + LB + ASG. The site displays the ip of the server it is running on.
+This lab is for those who need a first step in understanding terraform and integrating with aws features. In this lab we created a high availability infrastructure with EC2 + LB + ASG. The site displays your public ip.
 
 #### Pre-req:
 
