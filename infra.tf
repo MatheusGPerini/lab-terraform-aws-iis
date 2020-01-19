@@ -4,58 +4,56 @@
 
 resource "aws_key_pair" "lab_key" {
   key_name   = "cloudKey"
-  public_key = "${file("PUT THE .pub KEY")}"
 }
-
 
 ################
 # SECURITY GROUP
 ################
 
 resource "aws_security_group" "sg_lab" {
-  name = "lab-${var.environment}"
-  vpc_id = "${var.vpc_id}"
+  name        = "lab-${var.environment}"
+  vpc_id      = "${var.vpc_id}"
   description = "Allow traffic for app application"
 
   ingress {
-    from_port               = "${var.so == "windows" ? 8080 : 80 }"
-    to_port                 = "${var.so == "windows" ? 8080 : 80 }"
-    protocol                = "tcp"
-    cidr_blocks             = ["0.0.0.0/0"]
+    from_port   = "${var.so == "windows" ? 8080 : 80 }"
+    to_port     = "${var.so == "windows" ? 8080 : 80 }"
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port               = "${var.so == "windows" ? 3389 : 22 }"
-    to_port                 = "${var.so == "windows" ? 3389 : 22 }"
-    protocol                = "tcp"
-    cidr_blocks             = ["0.0.0.0/0"]
+    from_port   = "${var.so == "windows" ? 3389 : 22 }"
+    to_port     = "${var.so == "windows" ? 3389 : 22 }"
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port               = 0
-    to_port                 = 0
-    protocol                = "-1"
-    cidr_blocks             = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_security_group" "sg_elb_lab" {
-  name = "elb-lab-${var.environment}"
-  vpc_id = "${var.vpc_id}"
+  name        = "elb-lab-${var.environment}"
+  vpc_id      = "${var.vpc_id}"
   description = "Allow traffic for app application"
 
   ingress {
-    from_port               = 80
-    to_port                 = 80
-    protocol                = "tcp"
-    cidr_blocks             = ["0.0.0.0/0"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port               = 0
-    to_port                 = 0
-    protocol                = "-1"
-    cidr_blocks             = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -64,61 +62,58 @@ resource "aws_security_group" "sg_elb_lab" {
 ######################
 
 resource "aws_launch_configuration" "lc_lab" {
-  image_id = "${var.so == "windows" ? "${var.ami_win}" : "${var.ami_linux}"}"
-  instance_type = "${var.instance_type}"
-  name = "lc-lab-${var.environment}-${random_id.server.hex}"
+  image_id        = "${var.so == "windows" ? "${var.ami_win}" : "${var.ami_linux}"}"
+  instance_type   = "${var.instance_type}"
+  name            = "lc-lab-${var.environment}-${random_id.server.hex}"
   security_groups = ["${aws_security_group.sg_lab.id}"]
-  key_name = "${aws_key_pair.lab_key.key_name}"
-  user_data = "${var.so == "windows" ? "${file("user_data/win.ps1")}" : "${file("user_data/linux.sh")}" }"
+  key_name        = "${aws_key_pair.lab_key.key_name}"
+  user_data       = "${var.so == "windows" ? "${file("user_data/win.ps1")}" : "${file("user_data/linux.sh")}" }"
 
   lifecycle {
-    create_before_destroy   = true
+    create_before_destroy = true
   }
 
   root_block_device {
     volume_type = "gp2"
     volume_size = "50"
   }
-
 }
 
 ####################
 # AUTO SCALING GROUP
 ####################
 
-
 resource "aws_autoscaling_group" "asg_lab" {
-  name = "asg-lab-${var.environment}-${random_id.server.hex}"
+  name                 = "asg-lab-${var.environment}-${random_id.server.hex}"
   launch_configuration = "${aws_launch_configuration.lc_lab.name}"
-  availability_zones = ["${var.azs}"]
-  vpc_zone_identifier = "${var.subnets}"
+  availability_zones   = ["${var.azs}"]
+  vpc_zone_identifier  = "${var.subnets}"
 
-  max_size = "${var.max_size}"
-  min_size = "${var.min_size}"
-  desired_capacity = "${var.desired_capacity}"
+  max_size                  = "${var.max_size}"
+  min_size                  = "${var.min_size}"
+  desired_capacity          = "${var.desired_capacity}"
   health_check_grace_period = 120
   health_check_type         = "ELB"
-  load_balancers = ["${aws_elb.elb_lab.name}"]
+  load_balancers            = ["${aws_elb.elb_lab.name}"]
 
   lifecycle {
-    create_before_destroy   = true
+    create_before_destroy = true
   }
 
   force_delete = true
 
   tags = [
     {
-      key                             = "Name"
-      value                           = "APP-${var.environment}"
-      propagate_at_launch             = true
+      key                 = "Name"
+      value               = "APP-${var.environment}"
+      propagate_at_launch = true
     },
     {
-      key                             = "Terraform"
-      value                           = "true"
-      propagate_at_launch             = true
-    }
+      key                 = "Terraform"
+      value               = "true"
+      propagate_at_launch = true
+    },
   ]
-    
 }
 
 ################
@@ -139,11 +134,11 @@ resource "aws_elb" "elb_lab" {
 
   listener = [
     {
-      instance_port      = "${var.so == "windowns" ? "8080" : "80"}"
-      instance_protocol  = "TCP"
-      lb_port            = "80"
-      lb_protocol        = "TCP"
-    }
+      instance_port     = "${var.so == "windowns" ? "8080" : "80"}"
+      instance_protocol = "TCP"
+      lb_port           = "80"
+      lb_protocol       = "TCP"
+    },
   ]
 
   health_check = [
@@ -156,20 +151,16 @@ resource "aws_elb" "elb_lab" {
     },
   ]
 
-  tags             = {
-    Name           = "elb-${var.environment}"
-    Terraform      = "true"
+  tags = {
+    Name      = "elb-${var.environment}"
+    Terraform = "true"
   }
 }
 
-
 resource "random_id" "server" {
   keepers = {
-
     uuid = "${uuid()}"
+  }
 
-    }
   byte_length = 8
 }
-
-

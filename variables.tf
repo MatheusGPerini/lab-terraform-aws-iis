@@ -1,38 +1,20 @@
-variable "environment" {
-  
-}
+variable "environment" {}
 
-variable "ami_win" {
-  
-}
+variable "ami_win" {}
 
-variable "ami_linux" {
-  
-}
+variable "ami_linux" {}
 
-variable "region" {
-  
-}
+variable "region" {}
 
-variable "max_size" {
-  
-}
+variable "max_size" {}
 
-variable "min_size" {
-  
-}
+variable "min_size" {}
 
-variable "desired_capacity" {
-  
-}
+variable "desired_capacity" {}
 
-variable "instance_type" {
-  
-}
+variable "instance_type" {}
 
-variable "vpc_id" {
-  
-}
+variable "vpc_id" {}
 
 variable "subnets" {
   type = "list"
@@ -42,18 +24,4 @@ variable "azs" {
   type = "list"
 }
 
-variable "so" {
-  
-}
-
-
-
-
-
-
-
-
-
-
-
-
+variable "so" {}
